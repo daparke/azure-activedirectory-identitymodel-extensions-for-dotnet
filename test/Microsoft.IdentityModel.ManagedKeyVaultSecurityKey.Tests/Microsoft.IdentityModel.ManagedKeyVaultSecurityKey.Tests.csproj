@@ -20,7 +20,6 @@
     <ProjectReference Include="..\..\src\Microsoft.IdentityModel.ManagedKeyVaultSecurityKey\Microsoft.IdentityModel.ManagedKeyVaultSecurityKey.csproj" />
     <ProjectReference Include="..\Microsoft.IdentityModel.Tests\Microsoft.IdentityModel.Tests.csproj" />
     <ProjectReference Include="..\Microsoft.IdentityModel.KeyVaultExtensions.Tests\Microsoft.IdentityModel.KeyVaultExtensions.Tests.csproj" />    
-    <PackageReference Include="Newtonsoft.Json" Version="$(JsonNetVersion)" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">

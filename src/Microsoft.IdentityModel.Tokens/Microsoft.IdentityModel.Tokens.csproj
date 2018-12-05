@@ -29,10 +29,6 @@
     <ProjectReference Include="..\Microsoft.IdentityModel.Logging\Microsoft.IdentityModel.Logging.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="$(JsonNetVersion)" />
-  </ItemGroup>
-
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.4' Or '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="System.Collections" Version="4.3.0-*" />
     <PackageReference Include="System.Diagnostics.Tools" Version="4.3.0-*" />
