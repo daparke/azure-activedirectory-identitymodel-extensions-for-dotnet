@@ -50,7 +50,7 @@ namespace System.IdentityModel.Tokens.Jwt.Tests
         [Fact]
         public void MalformedJson()
         {
-            Assert.Throws<Newtonsoft.Json.JsonReaderException>(() => JsonExtensions.DeserializeFromJson<object>(@"{""tag"":""value""}ABCD"));
+            Assert.Throws<Microsoft.IdentityModel.Json.JsonReaderException>(() => JsonExtensions.DeserializeFromJson<object>(@"{""tag"":""value""}ABCD"));
         }
     }
 }

@@ -29,8 +29,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
+using Microsoft.IdentityModel.Json.Linq;
 using Microsoft.IdentityModel.Tests;
-using Newtonsoft.Json.Linq;
 using Xunit;
 
 #pragma warning disable CS3016 // Arrays as attribute arguments is not CLS-compliant

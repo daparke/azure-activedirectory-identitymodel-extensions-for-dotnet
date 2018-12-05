@@ -85,7 +85,7 @@ namespace System.IdentityModel.Tokens.Jwt.Tests
                 int num = 0;
                 foreach (var str in list)
                 {
-                    var value = str as Newtonsoft.Json.Linq.JValue;
+                    var value = str as Microsoft.IdentityModel.Json.Linq.JValue;
                     if (value != null)
                     {
                         string aud = value.Value as string;
