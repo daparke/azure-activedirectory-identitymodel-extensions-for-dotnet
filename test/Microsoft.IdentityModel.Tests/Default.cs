@@ -374,7 +374,7 @@ namespace Microsoft.IdentityModel.Tests
             get => "<OuterXml></OuterXml>";
         }
 #if !CrossVersionTokenValidation
-        public static JObject Payload
+        public static string PayloadString
         {
             get => new JObject()
             {
@@ -385,12 +385,7 @@ namespace Microsoft.IdentityModel.Tests
                 { JwtRegisteredClaimNames.Iat, EpochTime.GetIntDate(Default.NotBefore).ToString() },
                 { JwtRegisteredClaimNames.Nbf, EpochTime.GetIntDate(Default.NotBefore).ToString()},
                 { JwtRegisteredClaimNames.Exp, EpochTime.GetIntDate(Default.Expires).ToString() },
-            };
-        }
-
-        public static string PayloadString 
-        {
-            get => Payload.ToString();
+            }.ToString();
         }
 
         public static List<Claim> PayloadClaims

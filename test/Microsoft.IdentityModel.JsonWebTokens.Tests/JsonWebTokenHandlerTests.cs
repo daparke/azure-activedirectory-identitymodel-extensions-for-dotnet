@@ -223,7 +223,7 @@ namespace Microsoft.IdentityModel.JsonWebTokens.Tests
             var validatedToken = tokenValidationResult.SecurityToken as JsonWebToken;
             var claimsIdentity = tokenValidationResult.ClaimsIdentity;
             IdentityComparer.AreEqual(Default.PayloadClaimsIdentity, claimsIdentity, context);
-            IdentityComparer.AreEqual(Default.Payload, validatedToken.Payload, context);
+            IdentityComparer.AreEqual(Default.PayloadString, validatedToken.Payload.ToString(), context);
             TestUtilities.AssertFailIfErrors(context);
         }
 

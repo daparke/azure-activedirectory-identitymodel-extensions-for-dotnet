@@ -53,7 +53,7 @@ namespace Microsoft.IdentityModel.Protocols.OpenIdConnect.Tests
             try
             {
                 messageFromJson = new OpenIdConnectMessage(theoryData.Json);
-                messageFromJsonObj = new OpenIdConnectMessage(theoryData.JObject);
+                messageFromJsonObj = new OpenIdConnectMessage(theoryData.JObject?.ToString());
                 IdentityComparer.AreEqual(messageFromJson, messageFromJsonObj, context);
                 IdentityComparer.AreEqual(messageFromJson, theoryData.Message, context);
                 theoryData.ExpectedException.ProcessNoException();
@@ -636,7 +636,7 @@ namespace Microsoft.IdentityModel.Protocols.OpenIdConnect.Tests
             
             public string Json { get; set; }
 
-            public JObject JObject { get; set; }
+            internal JObject JObject { get; set; }
         }
     }
 }
