@@ -1,0 +1,4 @@
+CannotRemoveAttribute : Attribute 'Newtonsoft.Json.JsonObjectAttribute' exists on 'Microsoft.IdentityModel.Tokens.JsonWebKey' in the contract but not the implementation.
+CannotRemoveAttribute : Attribute 'Newtonsoft.Json.JsonObjectAttribute' exists on 'Microsoft.IdentityModel.Tokens.JsonWebKeySet' in the contract but not the implementation.
+CannotRemoveAttribute : Attribute 'Newtonsoft.Json.JsonObjectAttribute' exists on 'Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectConfiguration' in the contract but not the implementation.
+MembersMustExist : Member 'Microsoft.IdentityModel.Protocols.OpenIdConnect.OpenIdConnectMessage..ctor(Newtonsoft.Json.Linq.JObject)' does not exist in the implementation but it does exist in the contract.
