@@ -128,15 +128,6 @@ namespace Microsoft.IdentityModel.Protocols.OpenIdConnect
             }
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="OpenIdConnectMessage"/> class.
-        /// </summary>
-        /// <param name="json">the json object from which the instance is created.</param>
-        public OpenIdConnectMessage(JObject json)
-        {
-            SetJsonParameters(json);
-        }
-
         private void SetJsonParameters(JObject json)
         {
             if (json == null)
