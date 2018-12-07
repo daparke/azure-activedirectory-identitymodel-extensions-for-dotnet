@@ -451,10 +451,18 @@ namespace Microsoft.IdentityModel.Tokens.Saml2
             using (var stringReader = new StringReader(token))
             {
                 var settings = new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit };
-#if NET45 || NET451
-                settings.XmlResolver = null;
-#endif
                 return new Saml2SecurityToken(Serializer.ReadAssertion(XmlReader.Create(stringReader, settings)));
+//#if NET45 || NET451
+//                settings.XmlResolver = null;
+//#endif
+//#if NETSTANDARD1_4
+//                var textReader = XmlDictionaryReader.CreateTextReader(Encoding.UTF8.GetBytes(token), XmlDictionaryReaderQuotas.Max);
+//#else
+//               var textReader = new XmlTextReader(stringReader);
+//#endif
+//                return new Saml2SecurityToken(Serializer.ReadAssertion(textReader));
+
+                //return new Saml2SecurityToken(Serializer.ReadAssertion(XmlReader.Create(stringReader, settings)));
             }
         }
 

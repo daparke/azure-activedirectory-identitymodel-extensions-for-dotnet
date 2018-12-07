@@ -735,7 +735,17 @@ namespace Microsoft.IdentityModel.Tokens.Saml
 #if NET45 || NET451
                 settings.XmlResolver = null;
 #endif
-                return new SamlSecurityToken(Serializer.ReadAssertion(XmlReader.Create(sr, settings))); 
+                //return new SamlSecurityToken(Serializer.ReadAssertion(XmlReader.Create(sr, settings)));
+
+                #if NETSTANDARD1_4
+                throw new Exception("throwing");
+                //var textReader = XmlDictionaryReader.CreateTextReader(Encoding.UTF8.GetBytes(token), XmlDictionaryReaderQuotas.Max);
+                #else
+                var textReader = new XmlTextReader(sr);
+                return new SamlSecurityToken(Serializer.ReadAssertion(textReader));
+#endif
+
+
             }
         }
 

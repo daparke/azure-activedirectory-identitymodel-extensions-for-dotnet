@@ -485,8 +485,8 @@ namespace Microsoft.IdentityModel.Tokens.Saml2
         /// <exception cref="ArgumentNullException">The input parameter 'reader' is null.</exception>
         protected virtual string ReadAttributeValue(XmlDictionaryReader reader, Saml2Attribute attribute)
         {
-            // This code was designed realizing that the writter of the xml controls how our
-            // reader will report the NodeType. A completely differnet system (IBM, etc) could write the values.
+            // This code was designed realizing that the writer of the xml controls how our
+            // reader will report the NodeType. A completely different system (IBM, etc) could write the values.
             // Considering NodeType is important, because we need to read the entire value, end element and not loose anything significant.
             //
             // Couple of cases to help understand the design choices.
@@ -505,7 +505,7 @@ namespace Microsoft.IdentityModel.Tokens.Saml2
             // Could result in the our reader reporting the NodeType as whitespace.
             //
             // Since an AttributeValue with ONLY Whitespace and a complex Element proceeded by whitespace are reported as the same NodeType (2. and 3.)
-            // the whitespace is remembered and discarded if an element is found, otherwise it becomes the value. This is to help users who accidently put a space when adding claims
+            // the whitespace is remembered and discarded if an element is found, otherwise it becomes the value. This is to help users who accidentally put a space when adding claims
             // If we just skipped the Whitespace, then an AttributeValue that started with Whitespace would loose that part and claims generated from the AttributeValue
             // would be missing that part.
             //
