@@ -247,6 +247,59 @@ namespace Microsoft.IdentityModel.Protocols.WsFederation.Tests
             TestUtilities.AssertFailIfErrors(context);
         }
 
+        [Theory, MemberData(nameof(GetSecurityTokenTheoryData))]
+
+        public void GetSecurityToken(WsFederationMessageTheoryData theoryData)
+        {
+            var context = TestUtilities.WriteHeader($"{this}.GetSecurityToken", theoryData);
+            try
+            {
+                var saml2SecurityToken = theoryData.WsFederationMessageTestSet.WsFederationMessage.GetSecurityToken() as Saml2SecurityToken;
+                if (theoryData.TokenValidationParameters != null)
+                    saml2SecurityToken.Assertion.Signature.Verify(theoryData.TokenValidationParameters.IssuerSigningKey, CryptoProviderFactory.Default);
+
+                theoryData.ExpectedException.ProcessNoException(context);
+            }
+            catch (Exception ex)
+            {
+                theoryData.ExpectedException.ProcessException(ex, context);
+            }
+
+            TestUtilities.AssertFailIfErrors(context);
+        }
+
+        public static TheoryData<WsFederationMessageTheoryData> GetSecurityTokenTheoryData
+        {
+            get
+            {
+                return new TheoryData<WsFederationMessageTheoryData>
+                {
+                    new WsFederationMessageTheoryData
+                    {
+                        First = true,
+                        TokenValidationParameters = new TokenValidationParameters
+                        {
+                            IssuerSigningKey = KeyingMaterial.DefaultAADSigningKey,
+                            ValidateIssuer = true,
+                            ValidIssuer = "https://sts.windows.net/add29489-7269-41f4-8841-b63c95564420/",
+                            ValidateAudience = true,
+                            ValidAudience = "spn:fe78e0b4-6fe7-47e6-812c-fb75cee266a4",
+                            ValidateLifetime = false,
+                        },
+                        WsFederationMessageTestSet = new WsFederationMessageTestSet
+                        {
+                            WsFederationMessage = new WsFederationMessage
+                            {
+                                Wresult = ReferenceXml.WResult_Saml2_Valid
+                            }
+                        },
+                        Token = ReferenceXml.Token_Saml2_Valid,
+                        TestId = nameof(ReferenceXml.WResult_Saml2_Valid)
+                    },
+                };
+            }
+        }
+
         [Theory, MemberData(nameof(GetTokenTheoryData))]
 
         public void GetTokenTest(WsFederationMessageTheoryData theoryData)

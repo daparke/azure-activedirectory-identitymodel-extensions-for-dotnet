@@ -479,7 +479,7 @@ namespace Microsoft.IdentityModel.Tokens.Saml2
         /// <exception cref="NotSupportedException">Currently not supported.</exception>
         public override SecurityToken ReadToken(XmlReader reader, TokenValidationParameters validationParameters)
         {
-            throw LogHelper.LogExceptionMessage(new NotSupportedException(LogMessages.IDX13950));
+            return new Saml2SecurityToken(Serializer.ReadAssertion(reader));
         }
 
         /// <summary>

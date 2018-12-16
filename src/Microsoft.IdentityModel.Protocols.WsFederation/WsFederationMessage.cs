@@ -26,6 +26,8 @@
 //------------------------------------------------------------------------------
 
 using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Tokens.Saml2;
 using Microsoft.IdentityModel.Xml;
 using System;
 using System.Collections.Generic;
@@ -153,6 +155,77 @@ namespace Microsoft.IdentityModel.Protocols.WsFederation
             {
                 Wa = WsFederationConstants.WsFederationActions.SignOut
             }).BuildRedirectUrl();
+        }
+
+        /// <summary>
+        /// Reads the 'wresult' and returns the embedded security token.
+        /// </summary>
+        /// <returns>a <see cref="SecurityToken"/>.</returns>
+        /// <exception cref="WsFederationException">if exception occurs while reading security token.</exception>
+        public virtual SecurityToken GetSecurityToken()
+        {
+            if (Wresult == null)
+            {
+                LogHelper.LogWarning(FormatInvariant(LogMessages.IDX22000, nameof(Wresult)));
+                return null;
+            }
+
+            SecurityToken token = null;
+            using (var sr = new StringReader(Wresult))
+            {
+                var settings = new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit };
+#if NET45 || NET451
+                settings.XmlResolver = null;
+#endif
+                XmlReader xmlReader = XmlReader.Create(sr, settings);
+                xmlReader.MoveToContent();
+
+                // Read <RequestSecurityTokenResponseCollection> for wstrust 1.3 and 1.4
+                if (XmlUtil.IsStartElement(xmlReader, WsTrustConstants.Elements.RequestSecurityTokenResponseCollection, WsTrustNamespaceNon2005List))
+                    xmlReader.ReadStartElement();
+
+                while (xmlReader.IsStartElement())
+                {
+                    // Read <RequestSecurityTokenResponse>
+                    if (!XmlUtil.IsStartElement(xmlReader, WsTrustConstants.Elements.RequestSecurityTokenResponse, WsTrustNamespaceList))
+                    {
+                        xmlReader.Skip();
+                        continue;
+                    }
+
+                    xmlReader.ReadStartElement();
+                    while (xmlReader.IsStartElement())
+                    {
+                        if (!XmlUtil.IsStartElement(xmlReader, WsTrustConstants.Elements.RequestedSecurityToken, WsTrustNamespaceList))
+                        {
+                            xmlReader.Skip();
+                            continue;
+                        }
+
+                        // Multiple tokens were found in the RequestSecurityTokenCollection. Only a single token is supported.
+                        if (token != null)
+                            throw new WsFederationException(LogMessages.IDX22903);
+
+                        // <RequestedSecurityToken>
+                        xmlReader.ReadStartElement();
+                        var saml2Serializer = new Saml2Serializer();
+                        var saml2Assertion = saml2Serializer.ReadAssertion(xmlReader);
+
+                        return new Saml2SecurityToken(saml2Assertion);
+
+                        // </RequestedSecurityToken>
+//                        xmlReader.ReadEndElement();
+                    }
+
+                    // Read </RequestSecurityTokenResponse>
+                    xmlReader.ReadEndElement();
+                }
+            }
+
+            if (token == null)
+                throw LogExceptionMessage(new WsFederationException(LogMessages.IDX22902));
+
+            return token;
         }
 
         // TODO much faster than using XmlDocument, explore if we should us this by default

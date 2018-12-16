@@ -40,7 +40,7 @@ using Microsoft.IdentityModel.Tokens.Saml2;
 using Microsoft.IdentityModel.Xml;
 using Newtonsoft.Json.Linq;
 
-namespace Microsoft.IdentityModel.TestUtils
+namespace Microsoft.IdentityModel.Tests
 {
     /// <summary>
     /// Returns default token creation / validation artifacts:
@@ -606,7 +606,7 @@ namespace Microsoft.IdentityModel.TestUtils
                 new Claim(ClaimTypes.HomePhone, "555.1212", ClaimValueTypes.String, Issuer, OriginalIssuer),
                 new Claim(ClaimTypes.Role, "Developer", ClaimValueTypes.String, Issuer, OriginalIssuer),
                 new Claim(ClaimTypes.Role, "Sales", ClaimValueTypes.String, Issuer, OriginalIssuer),
-                new Claim(ClaimTypes.StreetAddress, "123AnyWhereStreet/r/nSomeTown/r/nUSA", ClaimValueTypes.String, Issuer, OriginalIssuer),
+                new Claim(ClaimTypes.StreetAddress, "123AnyWhereStreet\r\nSomeTown/r/nUSA", ClaimValueTypes.String, Issuer, OriginalIssuer),
                 new Claim(ClaimsIdentity.DefaultNameClaimType, "Jean-Sébastien", ClaimValueTypes.String, Issuer, OriginalIssuer),
             };
         }
