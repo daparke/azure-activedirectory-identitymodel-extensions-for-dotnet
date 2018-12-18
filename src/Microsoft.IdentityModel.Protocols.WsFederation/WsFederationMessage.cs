@@ -172,8 +172,7 @@ namespace Microsoft.IdentityModel.Protocols.WsFederation
             }
 
             string token = null;
-            //var str = Wresult.Replace("\r\n", "&#xD;\n");
-            var str = Wresult;
+            var str = Wresult.Replace("\r\n", "&#xD;\n");
             var dictionaryReader = XmlDictionaryReader.CreateTextReader(Encoding.UTF8.GetBytes(str), XmlDictionaryReaderQuotas.Max);
             dictionaryReader.MoveToElement();
 
@@ -203,16 +202,10 @@ namespace Microsoft.IdentityModel.Protocols.WsFederation
                         if (token != null)
                             throw new WsFederationException(LogMessages.IDX22903);
 
-                        // <RequestedSecurityToken>
-                        dictionaryReader.ReadStartElement();
-                        var ms = new MemoryStream();
-                        dictionaryReader.StartCanonicalization(ms, false, null);
+                    dictionaryReader.ReadStartElement();
+                    // <RequestedSecurityToken>
                     var samlSerializer = new SamlSerializer();
-                     return new SamlSecurityToken(samlSerializer.ReadAssertion(dictionaryReader));
-                        //token = dictionaryReader.ReadOuterXml();
-                        //dictionaryReader.EndCanonicalization();
-                        //ms.Flush();
-                        //var c14Token = Encoding.UTF8.GetString(ms.ToArray());
+                        return new SamlSecurityToken(samlSerializer.ReadAssertion(dictionaryReader));
                     }
 
                     // Read </RequestSecurityTokenResponse>
