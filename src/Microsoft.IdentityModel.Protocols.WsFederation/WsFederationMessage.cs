@@ -27,6 +27,7 @@
 
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Tokens.Saml;
 using Microsoft.IdentityModel.Tokens.Saml2;
 using Microsoft.IdentityModel.Xml;
 using System;
@@ -170,35 +171,31 @@ namespace Microsoft.IdentityModel.Protocols.WsFederation
                 return null;
             }
 
-            SecurityToken token = null;
-            using (var sr = new StringReader(Wresult))
+            string token = null;
+            //var str = Wresult.Replace("\r\n", "&#xD;\n");
+            var str = Wresult;
+            var dictionaryReader = XmlDictionaryReader.CreateTextReader(Encoding.UTF8.GetBytes(str), XmlDictionaryReaderQuotas.Max);
+            dictionaryReader.MoveToElement();
+
+            // Read <RequestSecurityTokenResponseCollection> for wstrust 1.3 and 1.4
+            if (XmlUtil.IsStartElement(dictionaryReader, WsTrustConstants.Elements.RequestSecurityTokenResponseCollection, WsTrustNamespaceNon2005List))
+                dictionaryReader.ReadStartElement();
+
+            while (dictionaryReader.IsStartElement())
             {
-                var settings = new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit };
-#if NET45 || NET451
-                settings.XmlResolver = null;
-#endif
-                XmlReader xmlReader = XmlReader.Create(sr, settings);
-                xmlReader.MoveToContent();
-
-                // Read <RequestSecurityTokenResponseCollection> for wstrust 1.3 and 1.4
-                if (XmlUtil.IsStartElement(xmlReader, WsTrustConstants.Elements.RequestSecurityTokenResponseCollection, WsTrustNamespaceNon2005List))
-                    xmlReader.ReadStartElement();
-
-                while (xmlReader.IsStartElement())
-                {
-                    // Read <RequestSecurityTokenResponse>
-                    if (!XmlUtil.IsStartElement(xmlReader, WsTrustConstants.Elements.RequestSecurityTokenResponse, WsTrustNamespaceList))
+                // Read <RequestSecurityTokenResponse>
+                if (!XmlUtil.IsStartElement(dictionaryReader, WsTrustConstants.Elements.RequestSecurityTokenResponse, WsTrustNamespaceList))
                     {
-                        xmlReader.Skip();
+                        dictionaryReader.Skip();
                         continue;
                     }
 
-                    xmlReader.ReadStartElement();
-                    while (xmlReader.IsStartElement())
+                    dictionaryReader.ReadStartElement();
+                    while (dictionaryReader.IsStartElement())
                     {
-                        if (!XmlUtil.IsStartElement(xmlReader, WsTrustConstants.Elements.RequestedSecurityToken, WsTrustNamespaceList))
+                        if (!XmlUtil.IsStartElement(dictionaryReader, WsTrustConstants.Elements.RequestedSecurityToken, WsTrustNamespaceList))
                         {
-                            xmlReader.Skip();
+                            dictionaryReader.Skip();
                             continue;
                         }
 
@@ -207,25 +204,26 @@ namespace Microsoft.IdentityModel.Protocols.WsFederation
                             throw new WsFederationException(LogMessages.IDX22903);
 
                         // <RequestedSecurityToken>
-                        xmlReader.ReadStartElement();
-                        var saml2Serializer = new Saml2Serializer();
-                        var saml2Assertion = saml2Serializer.ReadAssertion(xmlReader);
-
-                        return new Saml2SecurityToken(saml2Assertion);
-
-                        // </RequestedSecurityToken>
-//                        xmlReader.ReadEndElement();
+                        dictionaryReader.ReadStartElement();
+                        var ms = new MemoryStream();
+                        dictionaryReader.StartCanonicalization(ms, false, null);
+                    var samlSerializer = new SamlSerializer();
+                     return new SamlSecurityToken(samlSerializer.ReadAssertion(dictionaryReader));
+                        //token = dictionaryReader.ReadOuterXml();
+                        //dictionaryReader.EndCanonicalization();
+                        //ms.Flush();
+                        //var c14Token = Encoding.UTF8.GetString(ms.ToArray());
                     }
 
                     // Read </RequestSecurityTokenResponse>
-                    xmlReader.ReadEndElement();
+                    dictionaryReader.ReadEndElement();
                 }
-            }
+            //}
 
             if (token == null)
                 throw LogExceptionMessage(new WsFederationException(LogMessages.IDX22902));
 
-            return token;
+            return null;
         }
 
         // TODO much faster than using XmlDocument, explore if we should us this by default
@@ -322,7 +320,7 @@ namespace Microsoft.IdentityModel.Protocols.WsFederation
             }
 
             string token = null;
-            using (var sr = new StringReader(Wresult))
+            using (var sr = new StringReader(Wresult.Replace("\r\n", "&#xD;\n")))
             {
                 var settings = new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit };
 #if NET45 || NET451
@@ -390,6 +388,35 @@ namespace Microsoft.IdentityModel.Protocols.WsFederation
 
             return token;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public virtual string GetTokenReadingString()
+        {
+            if (Wresult == null)
+            {
+                LogHelper.LogWarning(FormatInvariant(LogMessages.IDX22000, nameof(Wresult)));
+                return null;
+            }
+
+            string token = null;
+            var rstLocation = Wresult.IndexOf(WsTrustConstants.Elements.RequestedSecurityToken);
+            if (rstLocation < 1)
+                return null;
+
+            token = Wresult.Substring(rstLocation + WsTrustConstants.Elements.RequestedSecurityToken.Length, Wresult.Length - (rstLocation + WsTrustConstants.Elements.RequestedSecurityToken.Length));
+            if (token.StartsWith(">"))
+                token = token.Substring(1, token.Length - 1);
+
+            rstLocation = token.IndexOf(WsTrustConstants.Elements.RequestedSecurityToken);
+            token = token.Substring(0, rstLocation + 1);
+            token = token.Substring(0, token.LastIndexOf('<'));
+
+            return token;
+        }
+
 
         /// <summary>
         /// Gets a boolean representing if the <see cref="WsFederationMessage"/> is a 'sign-in-message'.
